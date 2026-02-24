@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        :root { --primary: #1a2a6c; --accent: #00d2ff; --success: #28a745; --danger: #dc3545; }
+        :root { --primary: #1a2a6c; --accent: #00d2ff; --success: #28a745; --danger: #dc3545; --warning: #f39c12; }
         body { font-family: 'Cairo', sans-serif; background: #f4f7f9; margin: 0; padding: 15px; }
         .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
         
@@ -21,14 +21,17 @@
         .header h2 { color: var(--primary); margin: 0; }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; background: #eef2f7; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #d1d9e6; }
+        
         .input-group { display: flex; flex-direction: column; }
         label { font-size: 0.9rem; font-weight: bold; color: #444; margin-bottom: 5px; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; transition: 0.3s; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; transition: 0.3s; }
         input:focus { border-color: var(--accent); box-shadow: 0 0 5px rgba(0,210,255,0.3); }
 
         .btn-panel { display: flex; gap: 10px; margin-bottom: 25px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
         .btn-save { background: var(--success); }
+        .btn-update { background: var(--warning); display: none; }
         .btn-excel { background: var(--primary); }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
 
@@ -40,8 +43,12 @@
         .alert { display: none; background: #ffeded; color: #d93025; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcfcf; text-align: center; font-weight: bold; }
         .fav-btn { cursor: pointer; font-size: 1.2rem; color: #ccc; transition: 0.2s; }
         .fav-btn.active { color: #ffc107; }
-        .delete-icon { color: var(--danger); cursor: pointer; }
+        .delete-icon { color: var(--danger); cursor: pointer; margin-right: 10px; }
+        .edit-icon { color: var(--accent); cursor: pointer; }
         .badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
+        
+        /* تحسين شكل البحث */
+        .search-box { border: 2px solid var(--accent) !important; background: #fff; }
     </style>
 </head>
 <body>
@@ -57,16 +64,36 @@
     </div>
 
     <div class="form-grid">
+        <input type="hidden" id="editKey">
         <div class="input-group"><label>اسم المريض</label><input type="text" id="pName" placeholder="اسم المريض"></div>
         <div class="input-group"><label>نوع العملية</label><input type="text" id="pType" placeholder="نوع الإجراء"></div>
         <div class="input-group"><label>اسم الطبيب</label><input type="text" id="dName" placeholder="الطبيب المعالج"></div>
         <div class="input-group"><label>رقم السند</label><input type="number" id="rId" placeholder="رقم السند"></div>
         <div class="input-group"><label>مبلغ السند</label><input type="number" id="rAmount" placeholder="0.00"></div>
+        <div class="input-group"><label>التاريخ</label><input type="date" id="rDate"></div>
     </div>
 
     <div class="btn-panel">
-        <button class="btn-save" onclick="handleSave()"><i class="fas fa-cloud-upload-alt"></i> حفظ في قاعدة البيانات</button>
-        <button class="btn-excel" onclick="exportExcel()"><i class="fas fa-file-excel"></i> ترحيل كشف حساب (Excel)</button>
+        <button id="saveBtn" class="btn-save" onclick="handleSave()"><i class="fas fa-cloud-upload-alt"></i> حفظ في قاعدة البيانات</button>
+        <button id="updateBtn" class="btn-update" onclick="handleUpdate()"><i class="fas fa-edit"></i> تحديث التعديلات</button>
+    </div>
+
+    <div class="filter-grid">
+        <div class="input-group">
+            <label><i class="fas fa-search"></i> بحث لحظي وترحيل باسم الطبيب</label>
+            <input type="text" id="filterDoctor" class="search-box" placeholder="اكتب اسم الطبيب للبحث..." onkeyup="filterTable()">
+        </div>
+        <div class="input-group">
+            <label>من تاريخ</label>
+            <input type="date" id="filterDateFrom">
+        </div>
+        <div class="input-group">
+            <label>إلى تاريخ</label>
+            <input type="date" id="filterDateTo">
+        </div>
+        <div class="input-group" style="justify-content: flex-end;">
+            <button class="btn-excel" onclick="exportExcelFiltered()"><i class="fas fa-file-export"></i> ترحيل التقرير مع الإجمالي</button>
+        </div>
     </div>
 
     <div class="table-container">
@@ -74,24 +101,22 @@
             <thead>
                 <tr>
                     <th><i class="fas fa-star"></i></th>
+                    <th>التاريخ</th>
                     <th>رقم السند</th>
                     <th>المريض</th>
                     <th>الطبيب</th>
                     <th>المبلغ</th>
                     <th>النسبة (35%)</th>
-                    <th>الضريبة (15%)</th>
-                    <th>الصافي المستحق</th>
+                    <th>الصافي</th>
                     <th>إجراءات</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // إعدادات مشروعك التي أرسلتها
     const firebaseConfig = {
         apiKey: "AIzaSyC58hO1JLETcYKPgWbUpo6lQKAVlHNNCAQ",
         authDomain: "my-mohammed-777.firebaseapp.com",
@@ -103,118 +128,202 @@
         measurementId: "G-KX2LKBKHP8"
     };
 
-    // بدء تشغيل فيربيس
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     let localData = [];
 
-    // استماع لحظي للبيانات من السحابة
+    document.getElementById('rDate').valueAsDate = new Date();
+
     db.ref('entries').on('value', (snapshot) => {
         const data = snapshot.val();
         localData = [];
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-
         if (data) {
             Object.keys(data).forEach(key => {
                 const item = data[key];
                 item.firebaseKey = key;
                 localData.push(item);
-
-                const row = `
-                    <tr>
-                        <td><i class="fas fa-star fav-btn ${item.isFav ? 'active' : ''}" onclick="toggleFav('${key}', ${item.isFav})"></i></td>
-                        <td><b>${item.rId}</b></td>
-                        <td>${item.pName}</td>
-                        <td>${item.dName}</td>
-                        <td>${item.rAmount}</td>
-                        <td>${item.docShare}</td>
-                        <td>${item.taxAmount}</td>
-                        <td><span class="badge">${item.netTotal}</span></td>
-                        <td><i class="fas fa-trash-alt delete-icon" onclick="deleteItem('${key}')"></i></td>
-                    </tr>
-                `;
-                tbody.insertAdjacentHTML('beforeend', row);
             });
         }
+        renderTable(localData);
     });
 
-    // إضافة بيانات جديدة
+    function renderTable(dataArray) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        dataArray.forEach(item => {
+            const row = `
+                <tr>
+                    <td><i class="fas fa-star fav-btn ${item.isFav ? 'active' : ''}" onclick="toggleFav('${item.firebaseKey}', ${item.isFav})"></i></td>
+                    <td>${item.rDate || '---'}</td>
+                    <td><b>${item.rId}</b></td>
+                    <td>${item.pName}</td>
+                    <td>${item.dName}</td>
+                    <td>${item.rAmount}</td>
+                    <td>${item.docShare}</td>
+                    <td><span class="badge">${item.netTotal}</span></td>
+                    <td>
+                        <i class="fas fa-edit edit-icon" onclick="prepareEdit('${item.firebaseKey}')"></i>
+                        <i class="fas fa-trash-alt delete-icon" onclick="deleteItem('${item.firebaseKey}')"></i>
+                    </td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+    }
+
+    // وظيفة البحث اللحظي في الجدول
+    function filterTable() {
+        const searchTerm = document.getElementById('filterDoctor').value.toLowerCase();
+        const filtered = localData.filter(item => 
+            item.dName.toLowerCase().includes(searchTerm)
+        );
+        renderTable(filtered);
+    }
+
     function handleSave() {
         const rId = document.getElementById('rId').value;
         const rAmount = parseFloat(document.getElementById('rAmount').value);
         const pName = document.getElementById('pName').value;
         const dName = document.getElementById('dName').value;
+        const rDate = document.getElementById('rDate').value;
 
-        if (!rId || !rAmount || !pName || !dName) {
+        if (!rId || !rAmount || !pName || !dName || !rDate) {
             alert("يرجى تعبئة كافة الحقول");
             return;
         }
 
-        // فحص تكرار رقم السند
         if (localData.some(entry => entry.rId === rId)) {
-            const alertBox = document.getElementById('duplicateAlert');
-            alertBox.style.display = 'block';
-            setTimeout(() => alertBox.style.display = 'none', 4000);
+            showDuplicateAlert();
             return;
         }
 
-        // الحسابات الرياضية
-        const docShare = (rAmount * 0.35).toFixed(2); // نسبة الطبيب 35%
-        const taxAmount = (docShare * 0.15).toFixed(2); // ضريبة 15% من النسبة
-        const netTotal = (docShare - taxAmount).toFixed(2);
-
+        const calculations = calculateShares(rAmount);
         const newEntry = {
-            pName,
-            pType: document.getElementById('pType').value,
-            dName,
-            rId,
-            rAmount,
-            docShare,
-            taxAmount,
-            netTotal,
+            pName, pType: document.getElementById('pType').value,
+            dName, rId, rAmount, rDate,
+            ...calculations,
             isFav: false,
             timestamp: Date.now()
         };
 
-        db.ref('entries').push(newEntry).then(() => {
-            document.querySelectorAll('input').forEach(input => input.value = '');
+        db.ref('entries').push(newEntry).then(() => clearInputs());
+    }
+
+    function prepareEdit(key) {
+        const item = localData.find(i => i.firebaseKey === key);
+        document.getElementById('editKey').value = key;
+        document.getElementById('pName').value = item.pName;
+        document.getElementById('pType').value = item.pType;
+        document.getElementById('dName').value = item.dName;
+        document.getElementById('rId').value = item.rId;
+        document.getElementById('rAmount').value = item.rAmount;
+        document.getElementById('rDate').value = item.rDate;
+
+        document.getElementById('saveBtn').style.display = 'none';
+        document.getElementById('updateBtn').style.display = 'flex';
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function handleUpdate() {
+        const key = document.getElementById('editKey').value;
+        const rAmount = parseFloat(document.getElementById('rAmount').value);
+        const calculations = calculateShares(rAmount);
+
+        const updatedData = {
+            pName: document.getElementById('pName').value,
+            pType: document.getElementById('pType').value,
+            dName: document.getElementById('dName').value,
+            rId: document.getElementById('rId').value,
+            rAmount: rAmount,
+            rDate: document.getElementById('rDate').value,
+            ...calculations
+        };
+
+        db.ref('entries/' + key).update(updatedData).then(() => {
+            alert("تم التحديث بنجاح");
+            clearInputs();
+            document.getElementById('saveBtn').style.display = 'flex';
+            document.getElementById('updateBtn').style.display = 'none';
         });
     }
 
-    // حذف عنصر
-    function deleteItem(key) {
-        if(confirm("هل أنت متأكد من حذف هذا السجل من السحابة؟")) {
-            db.ref('entries/' + key).remove();
-        }
+    function calculateShares(amount) {
+        const docShare = (amount * 0.35).toFixed(2);
+        const taxAmount = (docShare * 0.15).toFixed(2);
+        const netTotal = (docShare - taxAmount).toFixed(2);
+        return { docShare, taxAmount, netTotal };
     }
 
-    // تبديل حالة المفضلة
+    // ترحيل الإكسل مع إضافة سطر الإجماليات
+    function exportExcelFiltered() {
+        const drFilter = document.getElementById('filterDoctor').value.toLowerCase();
+        const dateFrom = document.getElementById('filterDateFrom').value;
+        const dateTo = document.getElementById('filterDateTo').value;
+
+        let filtered = localData.filter(i => i.dName.toLowerCase().includes(drFilter));
+
+        if (dateFrom && dateTo) {
+            filtered = filtered.filter(i => i.rDate >= dateFrom && i.rDate <= dateTo);
+        }
+
+        if (filtered.length === 0) return alert("لا توجد بيانات للترحيل");
+
+        let totalOriginal = 0;
+        let totalNet = 0;
+
+        const excelRows = filtered.map(item => {
+            totalOriginal += parseFloat(item.rAmount);
+            totalNet += parseFloat(item.netTotal);
+            return {
+                "التاريخ": item.rDate,
+                "رقم السند": item.rId,
+                "المريض": item.pName,
+                "الطبيب": item.dName,
+                "المبلغ الأصلي": item.rAmount,
+                "النسبة 35%": item.docShare,
+                "الضريبة 15%": item.taxAmount,
+                "الصافي للطبيب": item.netTotal
+            };
+        });
+
+        // إضافة سطر الإجمالي في نهاية المصفوفة
+        excelRows.push({
+            "التاريخ": "الإجمــــــــالي",
+            "رقم السند": "",
+            "المريض": "",
+            "الطبيب": "",
+            "المبلغ الأصلي": totalOriginal.toFixed(2),
+            "النسبة 35%": "",
+            "الضريبة 15%": "",
+            "الصافي للطبيب": totalNet.toFixed(2)
+        });
+
+        const ws = XLSX.utils.json_to_sheet(excelRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "كشف حساب مفصل");
+        XLSX.writeFile(wb, `تقرير_محمد_777_${drFilter || 'عام'}.xlsx`);
+    }
+
+    function deleteItem(key) {
+        if(confirm("حذف السجل نهائياً؟")) db.ref('entries/' + key).remove();
+    }
+
     function toggleFav(key, current) {
         db.ref('entries/' + key).update({ isFav: !current });
     }
 
-    // تصدير كشف الحساب إلى Excel
-    function exportExcel() {
-        if (localData.length === 0) return alert("لا توجد بيانات لتصديرها");
-        
-        const reportData = localData.map(item => ({
-            "رقم السند": item.rId,
-            "المريض": item.pName,
-            "العملية": item.pType,
-            "الطبيب": item.dName,
-            "المبلغ الأصلي": item.rAmount,
-            "نسبة الطبيب (35%)": item.docShare,
-            "الضريبة (15%)": item.taxAmount,
-            "الصافي للطبيب": item.netTotal
-        }));
+    function clearInputs() {
+        document.querySelectorAll('.form-grid input').forEach(i => {
+            if(i.id !== 'rDate') i.value = '';
+        });
+        document.getElementById('editKey').value = '';
+    }
 
-        const worksheet = XLSX.utils.json_to_sheet(reportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "كشف حساب");
-        XLSX.writeFile(workbook, "تقرير_الأطباء_محمد_777.xlsx");
+    function showDuplicateAlert() {
+        const box = document.getElementById('duplicateAlert');
+        box.style.display = 'block';
+        setTimeout(() => box.style.display = 'none', 4000);
     }
 </script>
-
 </body>
 </html>
