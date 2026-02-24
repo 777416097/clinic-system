@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام محاسبة الأطباء | محمد</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root { --primary: #1a2a6c; --accent: #00d2ff; --success: #28a745; --danger: #dc3545; }
+        body { font-family: 'Cairo', sans-serif; background: #f4f7f9; margin: 0; padding: 15px; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; padding-bottom: 10px; }
+        .header h2 { color: var(--primary); margin: 0; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; }
+        label { font-size: 0.9rem; font-weight: bold; color: #444; margin-bottom: 5px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 5px rgba(0,210,255,0.3); }
+
+        .btn-panel { display: flex; gap: 10px; margin-bottom: 25px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-save { background: var(--success); }
+        .btn-excel { background: var(--primary); }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: #f1f3f5; color: var(--primary); padding: 15px; font-size: 0.85rem; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        
+        .alert { display: none; background: #ffeded; color: #d93025; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcfcf; text-align: center; font-weight: bold; }
+        .fav-btn { cursor: pointer; font-size: 1.2rem; color: #ccc; transition: 0.2s; }
+        .fav-btn.active { color: #ffc107; }
+        .delete-icon { color: var(--danger); cursor: pointer; }
+        .badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2><i class="fas fa-hand-holding-usd"></i> محاسبة نسب الأطباء</h2>
+        <div id="status" style="font-size: 0.8rem; color: #888;">متصل بالسحابة <i class="fas fa-circle" style="color: var(--success)"></i></div>
+    </div>
+
+    <div id="duplicateAlert" class="alert">
+        <i class="fas fa-exclamation-circle"></i> تنبيه: رقم السند (رقم القيد) مسجل مسبقاً في النظام!
+    </div>
+
+    <div class="form-grid">
+        <div class="input-group"><label>اسم المريض</label><input type="text" id="pName" placeholder="اسم المريض"></div>
+        <div class="input-group"><label>نوع العملية</label><input type="text" id="pType" placeholder="نوع الإجراء"></div>
+        <div class="input-group"><label>اسم الطبيب</label><input type="text" id="dName" placeholder="الطبيب المعالج"></div>
+        <div class="input-group"><label>رقم السند</label><input type="number" id="rId" placeholder="رقم السند"></div>
+        <div class="input-group"><label>مبلغ السند</label><input type="number" id="rAmount" placeholder="0.00"></div>
+    </div>
+
+    <div class="btn-panel">
+        <button class="btn-save" onclick="handleSave()"><i class="fas fa-cloud-upload-alt"></i> حفظ في قاعدة البيانات</button>
+        <button class="btn-excel" onclick="exportExcel()"><i class="fas fa-file-excel"></i> ترحيل كشف حساب (Excel)</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th><i class="fas fa-star"></i></th>
+                    <th>رقم السند</th>
+                    <th>المريض</th>
+                    <th>الطبيب</th>
+                    <th>المبلغ</th>
+                    <th>النسبة (35%)</th>
+                    <th>الضريبة (15%)</th>
+                    <th>الصافي المستحق</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // إعدادات مشروعك التي أرسلتها
+    const firebaseConfig = {
+        apiKey: "AIzaSyC58hO1JLETcYKPgWbUpo6lQKAVlHNNCAQ",
+        authDomain: "my-mohammed-777.firebaseapp.com",
+        databaseURL: "https://my-mohammed-777-default-rtdb.firebaseio.com",
+        projectId: "my-mohammed-777",
+        storageBucket: "my-mohammed-777.firebasestorage.app",
+        messagingSenderId: "579967755436",
+        appId: "1:579967755436:web:ae30d06bb9acf51437eb09",
+        measurementId: "G-KX2LKBKHP8"
+    };
+
+    // بدء تشغيل فيربيس
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let localData = [];
+
+    // استماع لحظي للبيانات من السحابة
+    db.ref('entries').on('value', (snapshot) => {
+        const data = snapshot.val();
+        localData = [];
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const item = data[key];
+                item.firebaseKey = key;
+                localData.push(item);
+
+                const row = `
+                    <tr>
+                        <td><i class="fas fa-star fav-btn ${item.isFav ? 'active' : ''}" onclick="toggleFav('${key}', ${item.isFav})"></i></td>
+                        <td><b>${item.rId}</b></td>
+                        <td>${item.pName}</td>
+                        <td>${item.dName}</td>
+                        <td>${item.rAmount}</td>
+                        <td>${item.docShare}</td>
+                        <td>${item.taxAmount}</td>
+                        <td><span class="badge">${item.netTotal}</span></td>
+                        <td><i class="fas fa-trash-alt delete-icon" onclick="deleteItem('${key}')"></i></td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+    });
+
+    // إضافة بيانات جديدة
+    function handleSave() {
+        const rId = document.getElementById('rId').value;
+        const rAmount = parseFloat(document.getElementById('rAmount').value);
+        const pName = document.getElementById('pName').value;
+        const dName = document.getElementById('dName').value;
+
+        if (!rId || !rAmount || !pName || !dName) {
+            alert("يرجى تعبئة كافة الحقول");
+            return;
+        }
+
+        // فحص تكرار رقم السند
+        if (localData.some(entry => entry.rId === rId)) {
+            const alertBox = document.getElementById('duplicateAlert');
+            alertBox.style.display = 'block';
+            setTimeout(() => alertBox.style.display = 'none', 4000);
+            return;
+        }
+
+        // الحسابات الرياضية
+        const docShare = (rAmount * 0.35).toFixed(2); // نسبة الطبيب 35%
+        const taxAmount = (docShare * 0.15).toFixed(2); // ضريبة 15% من النسبة
+        const netTotal = (docShare - taxAmount).toFixed(2);
+
+        const newEntry = {
+            pName,
+            pType: document.getElementById('pType').value,
+            dName,
+            rId,
+            rAmount,
+            docShare,
+            taxAmount,
+            netTotal,
+            isFav: false,
+            timestamp: Date.now()
+        };
+
+        db.ref('entries').push(newEntry).then(() => {
+            document.querySelectorAll('input').forEach(input => input.value = '');
+        });
+    }
+
+    // حذف عنصر
+    function deleteItem(key) {
+        if(confirm("هل أنت متأكد من حذف هذا السجل من السحابة؟")) {
+            db.ref('entries/' + key).remove();
+        }
+    }
+
+    // تبديل حالة المفضلة
+    function toggleFav(key, current) {
+        db.ref('entries/' + key).update({ isFav: !current });
+    }
+
+    // تصدير كشف الحساب إلى Excel
+    function exportExcel() {
+        if (localData.length === 0) return alert("لا توجد بيانات لتصديرها");
+        
+        const reportData = localData.map(item => ({
+            "رقم السند": item.rId,
+            "المريض": item.pName,
+            "العملية": item.pType,
+            "الطبيب": item.dName,
+            "المبلغ الأصلي": item.rAmount,
+            "نسبة الطبيب (35%)": item.docShare,
+            "الضريبة (15%)": item.taxAmount,
+            "الصافي للطبيب": item.netTotal
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(reportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "كشف حساب");
+        XLSX.writeFile(workbook, "تقرير_الأطباء_محمد_777.xlsx");
+    }
+</script>
+
+</body>
+</html>
