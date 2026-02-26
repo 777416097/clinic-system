@@ -14,189 +14,127 @@
 
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #4895ef;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --bg: #f8f9fa;
-            --card: #ffffff;
-            --text: #2b2d42;
+            --primary: #4361ee; --secondary: #3f37c9; --accent: #4895ef;
+            --success: #4cc9f0; --danger: #f72585; --bg: #f8f9fa;
+            --card: #ffffff; --text: #2b2d42;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            -webkit-user-select: none;
+            font-family: 'Cairo', sans-serif; background-color: var(--bg);
+            color: var(--text); margin: 0; padding: 0; -webkit-user-select: none;
         }
 
-        /* نظام التبويبات */
-        .tab-content { display: none; padding: 20px; padding-bottom: 80px; animation: fadeIn 0.3s ease; }
+        .tab-content { display: none; padding: 15px; padding-bottom: 80px; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* الهيدر */
         .app-header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 25px 20px;
-            text-align: center;
-            border-radius: 0 0 30px 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            color: white; padding: 20px; text-align: center;
+            border-radius: 0 0 25px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .app-header h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
-        .app-header p { margin: 5px 0 0; opacity: 0.8; font-size: 0.8rem; }
-
-        /* البطاقات */
         .card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+            background: var(--card); border-radius: 18px; padding: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 15px;
         }
 
-        /* الحقول */
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #555; }
-        .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            font-family: 'Cairo';
-            box-sizing: border-box;
-            transition: 0.3s;
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: #555; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 10px; border: 2px solid #eee;
+            border-radius: 10px; font-family: 'Cairo'; box-sizing: border-box;
         }
-        .input-group input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 8px rgba(67, 97, 238, 0.2); }
 
-        /* الأزرار */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-family: 'Cairo';
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: 0.3s;
-            font-size: 1rem;
+            width: 100%; padding: 12px; border: none; border-radius: 10px;
+            font-family: 'Cairo'; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .btn-primary { background: var(--primary); color: white; }
         .btn-update { background: var(--secondary); color: white; display: none; }
-        .btn-whatsapp { background: #25D366; color: white; margin-top: 10px; }
-        .btn-excel { background: #1d6f42; color: white; margin-top: 10px; }
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-excel { background: #1d6f42; color: white; }
 
-        /* الجدول العصرى */
-        .table-container { overflow-x: auto; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; background: white; border-radius: 15px; }
-        th { background: #f1f3f9; padding: 15px 10px; font-size: 0.8rem; color: #666; text-align: center; }
-        td { padding: 15px 10px; border-bottom: 1px solid #f8f9fa; text-align: center; font-size: 0.85rem; }
+        .table-container { overflow-x: auto; background: white; border-radius: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #f1f3f9; padding: 12px 8px; font-size: 0.75rem; color: #666; }
+        td { padding: 12px 8px; border-bottom: 1px solid #f8f9fa; text-align: center; font-size: 0.8rem; }
         
-        .badge { background: #eef2ff; color: var(--primary); padding: 5px 10px; border-radius: 8px; font-weight: 700; }
-        
-        .action-btns { display: flex; gap: 10px; justify-content: center; }
-        .action-btns i { cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; }
+        .badge { background: #eef2ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: 700; }
+        .action-btns i { cursor: pointer; padding: 6px; border-radius: 6px; margin: 0 2px; }
         .fa-edit { color: var(--primary); background: #eef2ff; }
         .fa-trash { color: var(--danger); background: #fff1f6; }
 
-        /* شريط التنقل السفلي */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-            border-radius: 20px 20px 0 0;
-            z-index: 1000;
+            position: fixed; bottom: 0; left: 0; right: 0; background: white;
+            display: flex; justify-content: space-around; padding: 10px 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05); border-radius: 15px 15px 0 0;
         }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #aaa;
-            text-decoration: none;
-            font-size: 0.75rem;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 0.7rem; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.3rem; margin-bottom: 4px; }
+        .nav-item i { font-size: 1.2rem; margin-bottom: 3px; }
 
+        .date-filter-box { background: #f0f7ff; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #d0e3ff; }
     </style>
 </head>
 <body>
 
     <div class="app-header">
-        <h1>نظام المحاسبة الذكي</h1>
-        <p id="connectionStatus">جاري الاتصال بالسحابة...</p>
+        <h1>نظام المحاسبة المتقدم</h1>
+        <p id="connectionStatus" style="font-size: 0.7rem; opacity: 0.8;">جاري الاتصال...</p>
     </div>
 
     <div id="inputTab" class="tab-content active">
         <div class="card">
-            <h3 style="margin-top:0"><i class="fas fa-plus-circle"></i> إضافة قيد جديد</h3>
+            <h3 style="margin:0 0 15px 0; font-size: 1rem;"><i class="fas fa-plus-circle"></i> إضافة بيانات</h3>
             <input type="hidden" id="editKey">
             
-            <div class="input-group">
-                <label>اسم الطبيب</label>
-                <input type="text" id="dName" placeholder="مثال: د. محمد">
-            </div>
-            <div class="input-group">
-                <label>اسم المريض</label>
-                <input type="text" id="pName" placeholder="مثال: أحمد علي">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="input-group">
-                    <label>رقم السند</label>
-                    <input type="number" id="rId">
-                </div>
-                <div class="input-group">
-                    <label>المبلغ الإجمالي</label>
-                    <input type="number" id="rAmount" placeholder="0.00">
-                </div>
-            </div>
-            <div class="input-group">
-                <label>التاريخ</label>
-                <input type="date" id="rDate">
+            <div class="grid-2">
+                <div class="input-group"><label>اسم الطبيب</label><input type="text" id="dName"></div>
+                <div class="input-group"><label>اسم المريض</label><input type="text" id="pName"></div>
             </div>
 
-            <button id="saveBtn" class="btn btn-primary" onclick="handleSave()">
-                <i class="fas fa-save"></i> حفظ البيانات
-            </button>
-            <button id="updateBtn" class="btn btn-update" onclick="handleUpdate()">
-                <i class="fas fa-sync-alt"></i> تحديث القيد
-            </button>
+            <div class="input-group">
+                <label>نوع العملية / الإجراء</label>
+                <input type="text" id="opType" placeholder="مثلاً: كشف، جراحة، تجميل...">
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group"><label>رقم السند</label><input type="number" id="rId"></div>
+                <div class="input-group"><label>المبلغ</label><input type="number" id="rAmount"></div>
+            </div>
+
+            <div class="input-group"><label>التاريخ</label><input type="date" id="rDate"></div>
+
+            <button id="saveBtn" class="btn btn-primary" onclick="handleSave()"><i class="fas fa-save"></i> حفظ</button>
+            <button id="updateBtn" class="btn btn-update" onclick="handleUpdate()"><i class="fas fa-sync-alt"></i> تحديث</button>
         </div>
     </div>
 
     <div id="reportTab" class="tab-content">
         <div class="card">
-            <h3 style="margin-top:0"><i class="fas fa-search"></i> الفلترة والتصدير</h3>
+            <h3 style="margin:0 0 10px 0; font-size: 1rem;"><i class="fas fa-filter"></i> فلترة التقارير</h3>
+            
             <div class="input-group">
-                <input type="text" id="filterDoctor" placeholder="ابحث باسم الطبيب للترحيل..." onkeyup="filterTable()">
+                <label>بحث بالطبيب</label>
+                <input type="text" id="filterDoctor" placeholder="اسم الطبيب..." onkeyup="filterData()">
             </div>
-            <button class="btn btn-whatsapp" onclick="exportWhatsApp()">
-                <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
-            </button>
-            <button class="btn btn-excel" onclick="exportExcelAndroid()">
-                <i class="fas fa-file-excel"></i> تصدير ملف Excel
-            </button>
+
+            <div class="date-filter-box">
+                <label style="font-size: 0.75rem; font-weight: bold; color: var(--primary);">تحديد الفترة الزمنية للترحيل:</label>
+                <div class="grid-2" style="margin-top: 5px;">
+                    <div class="input-group"><label>من</label><input type="date" id="dateFrom" onchange="filterData()"></div>
+                    <div class="input-group"><label>إلى</label><input type="date" id="dateTo" onchange="filterData()"></div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <button class="btn btn-whatsapp" onclick="exportWhatsApp()"><i class="fab fa-whatsapp"></i> واتساب</button>
+                <button class="btn btn-excel" onclick="exportExcelDetailed()"><i class="fas fa-file-excel"></i> إكسل</button>
+            </div>
         </div>
 
         <div class="table-container">
@@ -205,7 +143,7 @@
                     <tr>
                         <th>التاريخ</th>
                         <th>الطبيب</th>
-                        <th>المريض</th>
+                        <th>العملية</th>
                         <th>الصافي</th>
                         <th>إجراء</th>
                     </tr>
@@ -216,18 +154,11 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('inputTab', this)">
-            <i class="fas fa-edit"></i>
-            <span>الإدخال</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('reportTab', this)">
-            <i class="fas fa-chart-line"></i>
-            <span>التقارير</span>
-        </div>
+        <div class="nav-item active" onclick="switchTab('inputTab', this)"><i class="fas fa-pen"></i><span>الإدخال</span></div>
+        <div class="nav-item" onclick="switchTab('reportTab', this)"><i class="fas fa-file-invoice"></i><span>التقارير</span></div>
     </div>
 
 <script>
-    // الإعدادات (نفس بياناتك الأصلية)
     const firebaseConfig = {
         apiKey: "AIzaSyC58hO1JLETcYKPgWbUpo6lQKAVlHNNCAQ",
         authDomain: "my-mohammed-777.firebaseapp.com",
@@ -242,10 +173,8 @@
     const db = firebase.database();
     let localData = []; 
 
-    // ضبط التاريخ الافتراضي
     document.getElementById('rDate').valueAsDate = new Date();
 
-    // التبديل بين الواجهات
     function switchTab(tabId, el) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -253,7 +182,6 @@
         el.classList.add('active');
     }
 
-    // جلب البيانات
     db.ref('entries').on('value', (snapshot) => {
         const data = snapshot.val();
         localData = [];
@@ -265,9 +193,24 @@
             });
             localData.sort((a, b) => b.timestamp - a.timestamp);
         }
-        renderTable(localData);
-        document.getElementById('connectionStatus').innerHTML = 'متصل بالسحابة <i class="fas fa-check-circle"></i>';
+        filterData(); // تحديث الجدول بناء على الفلاتر الحالية
+        document.getElementById('connectionStatus').innerHTML = 'متصل سحابياً <i class="fas fa-check-circle"></i>';
     });
+
+    function filterData() {
+        const docSearch = document.getElementById('filterDoctor').value.toLowerCase();
+        const from = document.getElementById('dateFrom').value;
+        const to = document.getElementById('dateTo').value;
+
+        let filtered = localData.filter(item => {
+            const matchDoc = item.dName.toLowerCase().includes(docSearch);
+            const matchDate = (!from || item.rDate >= from) && (!to || item.rDate <= to);
+            return matchDoc && matchDate;
+        });
+
+        renderTable(filtered);
+        return filtered; // نرجعه لاستخدامه في التصدير
+    }
 
     function renderTable(dataArray) {
         const tbody = document.getElementById('tableBody');
@@ -277,7 +220,7 @@
                 <tr>
                     <td>${item.rDate.split('-').slice(1).join('/')}</td>
                     <td>${item.dName}</td>
-                    <td>${item.pName}</td>
+                    <td>${item.opType || '---'}</td>
                     <td><span class="badge">${item.netTotal}</span></td>
                     <td class="action-btns">
                         <i class="fas fa-edit" onclick="prepareEdit('${item.firebaseKey}')"></i>
@@ -298,35 +241,36 @@
     function handleSave() {
         const rId = document.getElementById('rId').value;
         const rAmount = parseFloat(document.getElementById('rAmount').value);
-        const pName = document.getElementById('pName').value;
         const dName = document.getElementById('dName').value;
-        const rDate = document.getElementById('rDate').value; 
+        const opType = document.getElementById('opType').value;
 
-        if (!rId || !rAmount || !pName || !dName) return alert("يرجى إكمال جميع الحقول");
+        if (!rId || !rAmount || !dName) return alert("أكمل البيانات الأساسية");
+
+        if (localData.some(item => String(item.rId) === String(rId))) return alert("رقم السند مكرر!");
 
         const calcs = calculateShares(rAmount);
-        const entry = { pName, dName, rId, rAmount, rDate, ...calcs, timestamp: Date.now() };
+        const entry = { 
+            pName: document.getElementById('pName').value, 
+            dName, opType, rId, rAmount, 
+            rDate: document.getElementById('rDate').value, 
+            ...calcs, timestamp: Date.now() 
+        };
 
-        db.ref('entries').push(entry).then(() => {
-            alert("تم الحفظ بنجاح");
-            resetForm();
-        });
+        db.ref('entries').push(entry).then(() => { resetForm(); alert("تم الحفظ"); });
     }
 
-    // وظيفة التعديل
     function prepareEdit(key) {
         const item = localData.find(i => i.firebaseKey === key);
         document.getElementById('editKey').value = key;
         document.getElementById('pName').value = item.pName;
         document.getElementById('dName').value = item.dName;
+        document.getElementById('opType').value = item.opType || '';
         document.getElementById('rId').value = item.rId;
         document.getElementById('rAmount').value = item.rAmount;
         document.getElementById('rDate').value = item.rDate;
-
         document.getElementById('saveBtn').style.display = 'none';
         document.getElementById('updateBtn').style.display = 'flex';
-        
-        switchTab('inputTab', document.querySelector('.nav-item')); // العودة لواجهة الإدخال
+        switchTab('inputTab', document.querySelector('.nav-item'));
     }
 
     function handleUpdate() {
@@ -337,61 +281,59 @@
         const updatedData = {
             pName: document.getElementById('pName').value,
             dName: document.getElementById('dName').value,
+            opType: document.getElementById('opType').value,
             rId: document.getElementById('rId').value,
             rAmount: rAmount,
             rDate: document.getElementById('rDate').value,
             ...calcs
         };
 
-        db.ref('entries/' + key).update(updatedData).then(() => {
-            alert("تم التحديث");
-            resetForm();
-            switchTab('reportTab', document.querySelectorAll('.nav-item')[1]);
-        });
+        db.ref('entries/' + key).update(updatedData).then(() => { resetForm(); switchTab('reportTab', document.querySelectorAll('.nav-item')[1]); });
     }
 
     function resetForm() {
-        document.getElementById('editKey').value = '';
-        document.getElementById('pName').value = '';
-        document.getElementById('rId').value = '';
-        document.getElementById('rAmount').value = '';
+        document.querySelectorAll('#inputTab input').forEach(i => { if(i.id !== 'rDate') i.value = ''; });
         document.getElementById('saveBtn').style.display = 'flex';
         document.getElementById('updateBtn').style.display = 'none';
     }
 
-    function filterTable() {
-        const term = document.getElementById('filterDoctor').value.toLowerCase();
-        const filtered = localData.filter(i => i.dName.toLowerCase().includes(term));
-        renderTable(filtered);
-    }
-
     function exportWhatsApp() {
-        const term = document.getElementById('filterDoctor').value;
-        const filtered = localData.filter(i => i.dName.toLowerCase().includes(term.toLowerCase()));
-        if(filtered.length === 0) return alert("لا توجد بيانات مفلترة");
+        const filtered = filterData();
+        if(filtered.length === 0) return alert("لا توجد بيانات للفترة المحددة");
 
-        let msg = `*تقرير الطبيب: ${term}*%0A` + `-------------------%0A`;
+        let msg = `*تقرير مالي الفترة: ${document.getElementById('dateFrom').value || 'البداية'} إلى ${document.getElementById('dateTo').value || 'اليوم'}*%0A%0A`;
         let total = 0;
         filtered.forEach(i => {
-            msg += `• مريض: ${i.pName} | صافي: ${i.netTotal}%0A`;
+            msg += `• مريض: ${i.pName} | ${i.opType || 'عملية'} | صافي: ${i.netTotal}%0A`;
             total += parseFloat(i.netTotal);
         });
-        msg += `-------------------%0A` + `*الإجمالي: ${total.toFixed(2)}*`;
+        msg += `%0A*الإجمالي النهائي: ${total.toFixed(2)}*`;
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
-    function exportExcelAndroid() {
-        const term = document.getElementById('filterDoctor').value;
-        let filtered = localData.filter(i => i.dName.toLowerCase().includes(term.toLowerCase()));
-        const ws = XLSX.utils.json_to_sheet(filtered);
+    function exportExcelDetailed() {
+        const filtered = filterData();
+        if(filtered.length === 0) return alert("لا توجد بيانات");
+
+        const excelData = filtered.map(item => ({
+            "التاريخ": item.rDate,
+            "رقم السند": item.rId,
+            "الطبيب": item.dName,
+            "المريض": item.pName,
+            "نوع العملية": item.opType || "---",
+            "المبلغ الإجمالي": item.rAmount,
+            "حصة الطبيب 35%": item.docShare,
+            "الضريبة 15%": item.taxAmount,
+            "الصافي للطبيب": item.netTotal
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(excelData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `تقرير_${term}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "التقرير");
+        XLSX.writeFile(wb, `تقرير_من_${document.getElementById('dateFrom').value}_إلى_${document.getElementById('dateTo').value}.xlsx`);
     }
 
-    function deleteItem(key) {
-        if(confirm("هل أنت متأكد من الحذف؟")) db.ref('entries/' + key).remove();
-    }
+    function deleteItem(key) { if(confirm("حذف؟")) db.ref('entries/' + key).remove(); }
 </script>
 </body>
 </html>
