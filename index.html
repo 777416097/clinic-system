@@ -2,138 +2,114 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>نظام محاسبة محمد 777</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام محاسبة الأطباء | هيئة مستشفى الثورة - إب</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        :root {
-            --primary: #4361ee; --secondary: #3f37c9; --accent: #4895ef;
-            --success: #4cc9f0; --danger: #f72585; --bg: #f8f9fa;
-            --card: #ffffff; --text: #2b2d42;
-        }
-
-        body {
-            font-family: 'Cairo', sans-serif; background-color: var(--bg);
-            color: var(--text); margin: 0; padding: 0; -webkit-user-select: none;
-        }
-
-        .tab-content { display: none; padding: 15px; padding-bottom: 80px; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .app-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white; padding: 20px; text-align: center;
-            border-radius: 0 0 25px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .card {
-            background: var(--card); border-radius: 18px; padding: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 15px;
-        }
-
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: #555; }
-        .input-group input, .input-group select {
-            width: 100%; padding: 10px; border: 2px solid #eee;
-            border-radius: 10px; font-family: 'Cairo'; box-sizing: border-box;
-        }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .btn {
-            width: 100%; padding: 12px; border: none; border-radius: 10px;
-            font-family: 'Cairo'; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-update { background: var(--secondary); color: white; display: none; }
-        .btn-whatsapp { background: #25D366; color: white; }
-        .btn-excel { background: #1d6f42; color: white; }
-
-        .table-container { overflow-x: auto; background: white; border-radius: 15px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: #f1f3f9; padding: 12px 8px; font-size: 0.75rem; color: #666; }
-        td { padding: 12px 8px; border-bottom: 1px solid #f8f9fa; text-align: center; font-size: 0.8rem; }
+        :root { --primary: #005a32; --accent: #2c3e50; --success: #28a745; --danger: #dc3545; --warning: #f39c12; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f4f7; margin: 0; padding: 15px; }
+        .container { max-width: 1250px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-top: 6px solid var(--primary); }
         
-        .badge { background: #eef2ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: 700; }
-        .action-btns i { cursor: pointer; padding: 6px; border-radius: 6px; margin: 0 2px; }
-        .fa-edit { color: var(--primary); background: #eef2ff; }
-        .fa-trash { color: var(--danger); background: #fff1f6; }
+        /* الترويسة الرسمية */
+        .gov-header { text-align: center; margin-bottom: 20px; border-bottom: 2px double #ddd; padding-bottom: 15px; }
+        .gov-header h3 { margin: 5px 0; color: var(--accent); }
+        .gov-header h2 { margin: 5px 0; color: var(--primary); font-size: 1.6rem; }
 
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; background: white;
-            display: flex; justify-content: space-around; padding: 10px 0;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05); border-radius: 15px 15px 0 0;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 0.7rem; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.2rem; margin-bottom: 3px; }
+        /* نظام التبويبات (Menu Tabs) */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .tab-btn { padding: 12px 25px; border: none; background: #e2e8f0; color: var(--accent); border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Cairo'; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
 
-        .date-filter-box { background: #f0f7ff; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #d0e3ff; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* تنسيق النماذج */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f9f9f9; padding: 25px; border-radius: 12px; border: 1px solid #eee; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #eef7f2; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
+        
+        .input-group { display: flex; flex-direction: column; }
+        label { font-size: 0.85rem; font-weight: bold; color: #555; margin-bottom: 5px; }
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-family: 'Cairo'; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(0,90,50,0.2); }
+
+        .btn-panel { display: flex; gap: 10px; margin-top: 20px; }
+        button.action-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; font-size: 1rem; }
+        .btn-save { background: var(--primary); }
+        .btn-update { background: var(--warning); display: none; }
+        .btn-excel { background: var(--accent); }
+
+        /* الجدول */
+        .table-container { overflow-x: auto; background: white; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { background: var(--accent); color: white; padding: 15px; font-size: 0.9rem; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        
+        .alert { display: none; background: #fff5f5; color: #c0392b; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #feb2b2; text-align: center; font-weight: bold; }
+        .fav-btn { cursor: pointer; font-size: 1.3rem; color: #ddd; }
+        .fav-btn.active { color: #f1c40f; }
+        .delete-icon { color: var(--danger); cursor: pointer; margin-right: 12px; }
+        .edit-icon { color: #3498db; cursor: pointer; }
+        .badge { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 6px; font-weight: bold; border: 1px solid #c3e6cb; }
+        .search-box { border: 2px solid var(--primary) !important; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="app-header">
-        <h1>نظام المحاسبة المتقدم</h1>
-        <p id="connectionStatus" style="font-size: 0.7rem; opacity: 0.8;">جاري الاتصال...</p>
+<div class="container">
+    <div class="gov-header">
+        <h3>الجمهورية اليمنية</h3>
+        <h2>هيئة مستشفى الثورة التعليمي - محافظة إب</h2>
+        <h3>نظام أتمتة مستحقات الأطباء</h3>
     </div>
 
-    <div id="inputTab" class="tab-content active">
-        <div class="card">
-            <h3 style="margin:0 0 15px 0; font-size: 1rem;"><i class="fas fa-plus-circle"></i> إضافة بيانات</h3>
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="openTab('input-tab', this)">
+            <i class="fas fa-edit"></i> قائمة الإدخال
+        </button>
+        <button class="tab-btn" onclick="openTab('report-tab', this)">
+            <i class="fas fa-file-invoice"></i> قائمة التقارير والبحث
+        </button>
+    </div>
+
+    <div id="duplicateAlert" class="alert">
+        <i class="fas fa-exclamation-triangle"></i> تنبيه: رقم السند هذا مسجل مسبقاً!
+    </div>
+
+    <div id="input-tab" class="tab-content active">
+        <div class="form-grid">
             <input type="hidden" id="editKey">
-            
-            <div class="grid-2">
-                <div class="input-group"><label>اسم الطبيب</label><input type="text" id="dName"></div>
-                <div class="input-group"><label>اسم المريض</label><input type="text" id="pName"></div>
-            </div>
-
-            <div class="input-group">
-                <label>نوع العملية / الإجراء</label>
-                <input type="text" id="opType" placeholder="مثلاً: كشف، جراحة، تجميل...">
-            </div>
-
-            <div class="grid-2">
-                <div class="input-group"><label>رقم السند</label><input type="number" id="rId"></div>
-                <div class="input-group"><label>المبلغ</label><input type="number" id="rAmount"></div>
-            </div>
-
-            <div class="input-group"><label>التاريخ</label><input type="date" id="rDate"></div>
-
-            <button id="saveBtn" class="btn btn-primary" onclick="handleSave()"><i class="fas fa-save"></i> حفظ</button>
-            <button id="updateBtn" class="btn btn-update" onclick="handleUpdate()"><i class="fas fa-sync-alt"></i> تحديث</button>
+            <div class="input-group"><label>اسم المريض</label><input type="text" id="pName" placeholder="الاسم الرباعي"></div>
+            <div class="input-group"><label>نوع العملية</label><input type="text" id="pType" placeholder="نوع الإجراء"></div>
+            <div class="input-group"><label>اسم الطبيب</label><input type="text" id="dName" placeholder="الطبيب المختص"></div>
+            <div class="input-group"><label>رقم السند</label><input type="number" id="rId" placeholder="0000"></div>
+            <div class="input-group"><label>مبلغ السند</label><input type="number" id="rAmount" placeholder="0.00"></div>
+            <div class="input-group"><label>تاريخ السند</label><input type="date" id="rDate"></div>
+        </div>
+        <div class="btn-panel">
+            <button id="saveBtn" class="action-btn btn-save" onclick="handleSave()"><i class="fas fa-plus-circle"></i> حفظ السند في السحابة</button>
+            <button id="updateBtn" class="action-btn btn-update" onclick="handleUpdate()"><i class="fas fa-sync-alt"></i> تحديث التعديلات</button>
         </div>
     </div>
 
-    <div id="reportTab" class="tab-content">
-        <div class="card">
-            <h3 style="margin:0 0 10px 0; font-size: 1rem;"><i class="fas fa-filter"></i> فلترة التقارير</h3>
-            
+    <div id="report-tab" class="tab-content">
+        <div class="filter-grid">
             <div class="input-group">
-                <label>بحث بالطبيب</label>
-                <input type="text" id="filterDoctor" placeholder="اسم الطبيب..." onkeyup="filterData()">
+                <label><i class="fas fa-search"></i> البحث السريع (اسم الطبيب)</label>
+                <input type="text" id="filterDoctor" class="search-box" placeholder="ابحث عن طبيب..." onkeyup="filterTable()">
             </div>
-
-            <div class="date-filter-box">
-                <label style="font-size: 0.75rem; font-weight: bold; color: var(--primary);">تحديد الفترة الزمنية للترحيل:</label>
-                <div class="grid-2" style="margin-top: 5px;">
-                    <div class="input-group"><label>من</label><input type="date" id="dateFrom" onchange="filterData()"></div>
-                    <div class="input-group"><label>إلى</label><input type="date" id="dateTo" onchange="filterData()"></div>
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <button class="btn btn-whatsapp" onclick="exportWhatsApp()"><i class="fab fa-whatsapp"></i> واتساب</button>
-                <button class="btn btn-excel" onclick="exportExcelDetailed()"><i class="fas fa-file-excel"></i> إكسل</button>
+            <div class="input-group"><label>الفترة من</label><input type="date" id="filterDateFrom"></div>
+            <div class="input-group"><label>الفترة إلى</label><input type="date" id="filterDateTo"></div>
+            <div class="input-group" style="justify-content: flex-end;">
+                <button class="action-btn btn-excel" onclick="exportExcelFiltered()"><i class="fas fa-file-excel"></i> ترحيل التقرير الرسمي</button>
             </div>
         </div>
 
@@ -141,24 +117,25 @@
             <table>
                 <thead>
                     <tr>
+                        <th><i class="fas fa-star"></i></th>
                         <th>التاريخ</th>
+                        <th>رقم السند</th>
+                        <th>المريض</th>
                         <th>الطبيب</th>
-                        <th>العملية</th>
+                        <th>المبلغ</th>
+                        <th>النسبة 35%</th>
                         <th>الصافي</th>
-                        <th>إجراء</th>
+                        <th>خيارات</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
     </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('inputTab', this)"><i class="fas fa-pen"></i><span>الإدخال</span></div>
-        <div class="nav-item" onclick="switchTab('reportTab', this)"><i class="fas fa-file-invoice"></i><span>التقارير</span></div>
-    </div>
+</div>
 
 <script>
+    // إعدادات Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyC58hO1JLETcYKPgWbUpo6lQKAVlHNNCAQ",
         authDomain: "my-mohammed-777.firebaseapp.com",
@@ -166,174 +143,180 @@
         projectId: "my-mohammed-777",
         storageBucket: "my-mohammed-777.firebasestorage.app",
         messagingSenderId: "579967755436",
-        appId: "1:579967755436:web:ae30d06bb9acf51437eb09"
-    }; 
+        appId: "1:579967755436:web:ae30d06bb9acf51437eb09",
+        measurementId: "G-KX2LKBKHP8"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let localData = []; 
+    let localData = [];
 
     document.getElementById('rDate').valueAsDate = new Date();
 
-    function switchTab(tabId, el) {
+    // نظام التبديل بين القوائم
+    function openTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        el.classList.add('active');
+        btn.classList.add('active');
     }
 
+    // جلب البيانات
     db.ref('entries').on('value', (snapshot) => {
         const data = snapshot.val();
         localData = [];
         if (data) {
             Object.keys(data).forEach(key => {
-                let item = data[key];
+                const item = data[key];
                 item.firebaseKey = key;
                 localData.push(item);
             });
-            localData.sort((a, b) => b.timestamp - a.timestamp);
         }
-        filterData(); // تحديث الجدول بناء على الفلاتر الحالية
-        document.getElementById('connectionStatus').innerHTML = 'متصل سحابياً <i class="fas fa-check-circle"></i>';
+        renderTable(localData);
     });
-
-    function filterData() {
-        const docSearch = document.getElementById('filterDoctor').value.toLowerCase();
-        const from = document.getElementById('dateFrom').value;
-        const to = document.getElementById('dateTo').value;
-
-        let filtered = localData.filter(item => {
-            const matchDoc = item.dName.toLowerCase().includes(docSearch);
-            const matchDate = (!from || item.rDate >= from) && (!to || item.rDate <= to);
-            return matchDoc && matchDate;
-        });
-
-        renderTable(filtered);
-        return filtered; // نرجعه لاستخدامه في التصدير
-    }
 
     function renderTable(dataArray) {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
+        dataArray.sort((a,b) => new Date(b.rDate) - new Date(a.rDate));
         dataArray.forEach(item => {
-            tbody.insertAdjacentHTML('beforeend', `
+            const row = `
                 <tr>
-                    <td>${item.rDate.split('-').slice(1).join('/')}</td>
+                    <td><i class="fas fa-star fav-btn ${item.isFav ? 'active' : ''}" onclick="toggleFav('${item.firebaseKey}', ${item.isFav})"></i></td>
+                    <td>${item.rDate}</td>
+                    <td><b>${item.rId}</b></td>
+                    <td>${item.pName}</td>
                     <td>${item.dName}</td>
-                    <td>${item.opType || '---'}</td>
+                    <td>${item.rAmount}</td>
+                    <td>${item.docShare}</td>
                     <td><span class="badge">${item.netTotal}</span></td>
-                    <td class="action-btns">
-                        <i class="fas fa-edit" onclick="prepareEdit('${item.firebaseKey}')"></i>
-                        <i class="fas fa-trash" onclick="deleteItem('${item.firebaseKey}')"></i>
+                    <td>
+                        <i class="fas fa-edit edit-icon" title="تعديل" onclick="prepareEdit('${item.firebaseKey}')"></i>
+                        <i class="fas fa-trash-alt delete-icon" title="حذف" onclick="deleteItem('${item.firebaseKey}')"></i>
                     </td>
                 </tr>
-            `);
+            `;
+            tbody.insertAdjacentHTML('beforeend', row);
         });
     }
 
-    function calculateShares(amount) {
-        const docShare = (amount * 0.35).toFixed(2);
-        const taxAmount = (docShare * 0.15).toFixed(2);
-        const netTotal = (docShare - taxAmount).toFixed(2);
-        return { docShare, taxAmount, netTotal };
+    function filterTable() {
+        const searchTerm = document.getElementById('filterDoctor').value.toLowerCase();
+        const filtered = localData.filter(item => item.dName.toLowerCase().includes(searchTerm));
+        renderTable(filtered);
     }
 
     function handleSave() {
         const rId = document.getElementById('rId').value;
         const rAmount = parseFloat(document.getElementById('rAmount').value);
+        const pName = document.getElementById('pName').value;
         const dName = document.getElementById('dName').value;
-        const opType = document.getElementById('opType').value;
+        const rDate = document.getElementById('rDate').value;
 
-        if (!rId || !rAmount || !dName) return alert("أكمل البيانات الأساسية");
+        if (!rId || !rAmount || !pName || !dName) return alert("يرجى ملء كافة البيانات");
 
-        if (localData.some(item => String(item.rId) === String(rId))) return alert("رقم السند مكرر!");
+        if (localData.some(entry => entry.rId === rId)) {
+            document.getElementById('duplicateAlert').style.display = 'block';
+            setTimeout(() => document.getElementById('duplicateAlert').style.display = 'none', 4000);
+            return;
+        }
 
-        const calcs = calculateShares(rAmount);
-        const entry = { 
-            pName: document.getElementById('pName').value, 
-            dName, opType, rId, rAmount, 
-            rDate: document.getElementById('rDate').value, 
-            ...calcs, timestamp: Date.now() 
-        };
+        const calc = calculateShares(rAmount);
+        db.ref('entries').push({
+            pName, pType: document.getElementById('pType').value,
+            dName, rId, rAmount, rDate, ...calc, isFav: false
+        }).then(() => {
+            clearInputs();
+            alert("تم الحفظ بنجاح");
+        });
+    }
 
-        db.ref('entries').push(entry).then(() => { resetForm(); alert("تم الحفظ"); });
+    function calculateShares(amount) {
+        const docShare = (amount * 0.35).toFixed(2);
+        const tax = (docShare * 0.15).toFixed(2);
+        const netTotal = (docShare - tax).toFixed(2);
+        return { docShare, taxAmount: tax, netTotal };
+    }
+
+    function exportExcelFiltered() {
+        const drFilter = document.getElementById('filterDoctor').value.toLowerCase();
+        const from = document.getElementById('filterDateFrom').value;
+        const to = document.getElementById('filterDateTo').value;
+
+        let filtered = localData.filter(i => i.dName.toLowerCase().includes(drFilter));
+        if (from && to) filtered = filtered.filter(i => i.rDate >= from && i.rDate <= to);
+        if (filtered.length === 0) return alert("لا يوجد بيانات للترحيل");
+
+        let sumOriginal = 0, sumNet = 0;
+        const rows = [
+            ["الجمهورية اليمنية"],
+            ["هيئة مستشفى الثورة التعليمي - إب"],
+            ["كشف مستحقات: " + (drFilter || "عام")],
+            ["بتاريخ: " + new Date().toLocaleDateString('ar-YE')],
+            [],
+            ["التاريخ", "رقم السند", "المريض", "الطبيب", "المبلغ الكلي", "النسبة 35%", "الضريبة 15%", "الصافي"]
+        ];
+
+        filtered.forEach(item => {
+            sumOriginal += parseFloat(item.rAmount);
+            sumNet += parseFloat(item.netTotal);
+            rows.push([item.rDate, item.rId, item.pName, item.dName, item.rAmount, item.docShare, item.taxAmount, item.netTotal]);
+        });
+
+        rows.push([], ["الإجمــــــــاليات", "", "", "", sumOriginal.toFixed(2), "", "", sumNet.toFixed(2)]);
+        rows.push([], []);
+        rows.push(["محاسب النسب", "مدير الإيرادات", "مدير الحسابات", "مدير عام المالية", "", "رئيس الهيئة"]);
+        rows.push(["................", "................", "................", "................", "", "................"]);
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{wch:15}, {wch:12}, {wch:22}, {wch:22}, {wch:15}, {wch:15}, {wch:15}, {wch:15}];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "التقرير الرسمي");
+        XLSX.writeFile(wb, `تقرير_مستشفى_الثورة_${new Date().getTime()}.xlsx`);
     }
 
     function prepareEdit(key) {
         const item = localData.find(i => i.firebaseKey === key);
         document.getElementById('editKey').value = key;
         document.getElementById('pName').value = item.pName;
+        document.getElementById('pType').value = item.pType;
         document.getElementById('dName').value = item.dName;
-        document.getElementById('opType').value = item.opType || '';
         document.getElementById('rId').value = item.rId;
         document.getElementById('rAmount').value = item.rAmount;
         document.getElementById('rDate').value = item.rDate;
+        
         document.getElementById('saveBtn').style.display = 'none';
         document.getElementById('updateBtn').style.display = 'flex';
-        switchTab('inputTab', document.querySelector('.nav-item'));
+        
+        openTab('input-tab', document.querySelector('.nav-tabs button:first-child'));
     }
 
     function handleUpdate() {
         const key = document.getElementById('editKey').value;
         const rAmount = parseFloat(document.getElementById('rAmount').value);
-        const calcs = calculateShares(rAmount);
-
-        const updatedData = {
+        const calc = calculateShares(rAmount);
+        db.ref('entries/' + key).update({
             pName: document.getElementById('pName').value,
+            pType: document.getElementById('pType').value,
             dName: document.getElementById('dName').value,
-            opType: document.getElementById('opType').value,
             rId: document.getElementById('rId').value,
             rAmount: rAmount,
             rDate: document.getElementById('rDate').value,
-            ...calcs
-        };
-
-        db.ref('entries/' + key).update(updatedData).then(() => { resetForm(); switchTab('reportTab', document.querySelectorAll('.nav-item')[1]); });
-    }
-
-    function resetForm() {
-        document.querySelectorAll('#inputTab input').forEach(i => { if(i.id !== 'rDate') i.value = ''; });
-        document.getElementById('saveBtn').style.display = 'flex';
-        document.getElementById('updateBtn').style.display = 'none';
-    }
-
-    function exportWhatsApp() {
-        const filtered = filterData();
-        if(filtered.length === 0) return alert("لا توجد بيانات للفترة المحددة");
-
-        let msg = `*تقرير مالي الفترة: ${document.getElementById('dateFrom').value || 'البداية'} إلى ${document.getElementById('dateTo').value || 'اليوم'}*%0A%0A`;
-        let total = 0;
-        filtered.forEach(i => {
-            msg += `• مريض: ${i.pName} | ${i.opType || 'عملية'} | صافي: ${i.netTotal}%0A`;
-            total += parseFloat(i.netTotal);
+            ...calc
+        }).then(() => {
+            alert("تم التحديث");
+            clearInputs();
+            document.getElementById('saveBtn').style.display = 'flex';
+            document.getElementById('updateBtn').style.display = 'none';
         });
-        msg += `%0A*الإجمالي النهائي: ${total.toFixed(2)}*`;
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
-    function exportExcelDetailed() {
-        const filtered = filterData();
-        if(filtered.length === 0) return alert("لا توجد بيانات");
-
-        const excelData = filtered.map(item => ({
-            "التاريخ": item.rDate,
-            "رقم السند": item.rId,
-            "الطبيب": item.dName,
-            "المريض": item.pName,
-            "نوع العملية": item.opType || "---",
-            "المبلغ الإجمالي": item.rAmount,
-            "حصة الطبيب 35%": item.docShare,
-            "الضريبة 15%": item.taxAmount,
-            "الصافي للطبيب": item.netTotal
-        }));
-
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "التقرير");
-        XLSX.writeFile(wb, `تقرير_من_${document.getElementById('dateFrom').value}_إلى_${document.getElementById('dateTo').value}.xlsx`);
+    function deleteItem(key) { if(confirm("حذف نهائي؟")) db.ref('entries/' + key).remove(); }
+    function toggleFav(key, current) { db.ref('entries/' + key).update({ isFav: !current }); }
+    function clearInputs() {
+        document.querySelectorAll('.form-grid input').forEach(i => { if(i.id !== 'rDate') i.value = ''; });
+        document.getElementById('editKey').value = '';
     }
-
-    function deleteItem(key) { if(confirm("حذف؟")) db.ref('entries/' + key).remove(); }
 </script>
 </body>
 </html>
